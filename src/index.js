@@ -2,12 +2,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {Client, Collection, Events, GatewayIntentBits} = require('discord.js');
 const cmds = require('./registerCMD');
+const client = new Client({intents: [GatewayIntentBits.Guilds]});
+exports.client = client
 
 const mariadb = require('mariadb');
 const pool = mariadb.createPool({
-    host: '10.101.0.2',
-    user: 'kaivax_discord',
-    password: 'T#@UBGF3enawti0nq8309ewrykj932h4wtgas',
+    host: process.env.maria_host,
+    user: process.env.maria_user,
+    password: process.env.maria_pwd,
     connectionLimit: 5
 });
 
@@ -16,7 +18,6 @@ cmds.reloadSlashCommandz();
 pool.getConnection().then(conn => {
     console.log("Connected to MariaDB SQL server on index.js...")
     // Create a new client instance
-    const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
     //Command cooldown
     client.cooldowns = new Collection();
@@ -62,3 +63,5 @@ pool.getConnection().then(conn => {
     console.error("FATAL: Unable to connect to MariaDB...")
     console.error(err)
 });
+
+
