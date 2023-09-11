@@ -7,7 +7,8 @@ module.exports = {
         .setDescription('Shorten a long link.')
         .addStringOption(option =>
             option.setName('url')
-                .setDescription('URL to shorten')),
+                .setDescription('URL to shorten')
+                .setRequired(true)),
 
     async execute(interaction) {
         var crypto = require("crypto");

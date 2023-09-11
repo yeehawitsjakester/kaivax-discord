@@ -7,7 +7,8 @@ module.exports = {
         .setDescription('Report a Shortlink')
         .addStringOption(option =>
             option.setName('shortcode')
-                .setDescription('URL to shorten')),
+                .setDescription('URL to shorten')
+                .setRequired(true)),
 
     async execute(interaction) {
         const mariadb = require('mariadb');

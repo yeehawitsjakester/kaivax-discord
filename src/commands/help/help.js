@@ -21,6 +21,8 @@ module.exports = {
                 { name: '/shorten <URL>', value: "Shorten a URL and receive a new shortlink with https://protogen.army/YourNewShortenedURL"},
                 { name: '/reportshort <Shortlink Code>', value: "Report a created Shortlink. The Shortlink code will be what comes after the forward slash, such as https://protogen.army/ReportedShortcodeIsHere"},
 
+                { name: '/mcsearch <Username/UUID>', value: "Retrieve profile details of a Minecraft account. Helpful for server operators or those who need a ban hammer smack."},
+
                 { name: '/ping', value: "Pong!"},
 
                 { name: '/quote [ID]', value: "Grab a random or specified quote from the Nexus."},
