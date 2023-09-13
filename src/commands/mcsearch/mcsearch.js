@@ -57,7 +57,7 @@ module.exports = {
 
                 var response = request('GET', url, {
                     headers: {
-                        'user-agent': process.env.public_identifier,
+                        'user-agent': configurator.public_identifier,
                     },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());

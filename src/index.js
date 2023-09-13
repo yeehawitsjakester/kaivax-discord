@@ -66,7 +66,8 @@ pool.getConnection().then(async conn => {
                 guildID: result[1].settingValue,
                 bot_username: result[2].settingValue,
                 shlink_lastVisitID: result[3].settingValue,
-                shlink_checkRate: result[4].settingValue
+                shlink_checkRate: result[4].settingValue,
+                public_identifier: result[5].settingValue
             }
             console.log('CONF: Configuration reloaded and up to date.');
             conn.close();
