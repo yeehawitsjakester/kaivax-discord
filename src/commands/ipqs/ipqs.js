@@ -1,8 +1,7 @@
 // noinspection JSCheckFunctionSignatures
 
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const domain = require("domain");
-
+const request = require("sync-request");
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = {
@@ -20,6 +19,13 @@ module.exports = {
     async execute(interaction) {
         const request = require('sync-request');
         const key = process.env.ipqs_token;
+        const mariadb = require('mariadb');
+        const pool = mariadb.createPool({
+            host: process.env.maria_host,
+            user: process.env.maria_user,
+            password: process.env.maria_pwd,
+            connectionLimit: 5
+        });
 
         interaction.deferReply();
         await wait(1000);
@@ -228,8 +234,10 @@ module.exports = {
             var url = "https://www.ipqualityscore.com/api/json/ip/" + key + "/" + queryIP;
             console.log("URL: "+url);
             try {
-                var response = request('GET', url);
-                //console.log(response.getBody());
+                var response = request('GET', url, {
+                    headers: {
+                        'user-agent': configurator.public_identifier,
+                    },});
                 return JSON.parse(response.getBody());
             }
             catch (error) {
@@ -241,7 +249,10 @@ module.exports = {
         function phoneQuery(queryPhone) {
             var url = "https://www.ipqualityscore.com/api/json/phone/" + key + "/" + queryPhone;
             try {
-                var response = request('GET', url);
+                var response = request('GET', url, {
+                    headers: {
+                        'user-agent': configurator.public_identifier,
+                    },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());
             }
@@ -254,7 +265,10 @@ module.exports = {
         function emailQuery(queryEmail) {
             var url = "https://www.ipqualityscore.com/api/json/email/" + key + "/" + queryEmail;
             try {
-                var response = request('GET', url);
+                var response = request('GET', url, {
+                    headers: {
+                        'user-agent': configurator.public_identifier,
+                    },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());
             }
@@ -267,7 +281,10 @@ module.exports = {
         function domainQuery(queryDomain) {
             var url = "https://www.ipqualityscore.com/api/json/url/" + key + "/" + queryDomain;
             try {
-                var response = request('GET', url);
+                var response = request('GET', url, {
+                    headers: {
+                        'user-agent': configurator.public_identifier,
+                    },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());
             }
