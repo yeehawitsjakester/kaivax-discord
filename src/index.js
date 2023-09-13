@@ -1,9 +1,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const {Client, Collection, Events, GatewayIntentBits} = require('discord.js');
+const {Client, Collection, Events, GatewayIntentBits, EmbedBuilder} = require('discord.js');
 const cmds = require('./registerCMD');
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
 exports.client = client
+let configurator;
+exports.configurator = configurator;
 
 const mariadb = require('mariadb');
 const pool = mariadb.createPool({
@@ -15,13 +17,13 @@ const pool = mariadb.createPool({
 
 cmds.reloadSlashCommandz();
 
-pool.getConnection().then(conn => {
+pool.getConnection().then(async conn => {
     console.log("Connected to MariaDB SQL server on index.js...")
-    // Create a new client instance
-
-    //Command cooldown
-    client.cooldowns = new Collection();
-
+    // Grab configuration from server
+    await configuratorReload()
+    //and set an interval to check in on shlink visits. 300000ms = 5min
+    //TODO: Dont know if good idea, but want lots of customization. Either resolve "TypeError: Cannot read properties of undefined (reading 'shlink_checkRate')" or discard of grabbing from database for refresh rate.
+    setInterval(retrieveShlinkVisits, '15000');
     //Read command files
     client.commands = new Collection();
     const foldersPath = path.join(__dirname, 'commands');
@@ -56,7 +58,71 @@ pool.getConnection().then(conn => {
         }
     }
 
-    //Token to sign into the Discord API. Configured from ./config.json
+    function configuratorReload() {
+        let getShlinkVisitsQuery = conn.query('SELECT * FROM kaivax.discord_settings').then(result => {
+            console.log('CONF: Reloading configuration...');
+            configurator = {
+                admin_channel: result[0].settingValue,
+                guildID: result[1].settingValue,
+                bot_username: result[2].settingValue,
+                shlink_lastVisitID: result[3].settingValue,
+                shlink_checkRate: result[4].settingValue
+            }
+            console.log('CONF: Configuration reloaded and up to date.');
+            conn.close();
+        }).catch(err => {
+            console.error("[FATAL] Cannot retrieve configuration from database server. Exiting! Received: " + err)
+            process.exit(-1)
+        });
+    }
+
+    function retrieveShlinkVisits() {
+        console.log('Retrieving new Shlink visits, one moment...')
+        let getShlinkVisitsReq = conn.query('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + configurator.shlink_lastVisitID + ';').then(async result => {
+            console.log('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + configurator.shlink_lastVisitID + ';')
+            let newVisitID = result[0].id;
+            let previousVisitID = configurator.shlink_lastVisitID;
+
+            if (newVisitID != null && newVisitID != previousVisitID) {
+                //There is a valid click ahead of this one.
+                console.log('Found new results for Shlink visits. Processing...')
+                conn.query("UPDATE kaivax.discord_settings SET settingValue = '" + result[0].id + "' WHERE settingName = 'shlink_lastvisit_id';")
+
+                configuratorReload()
+
+                let possibleBot;
+                if (result[0].potential_bot === '1') {
+                    possibleBot = 'True';
+                } else {
+                    possibleBot = 'False';
+                }
+
+                const shlinkVisitNotification = new EmbedBuilder()
+                    .setColor("#0051ff")
+                    .setTitle("Click! New shortlink visit")
+                    .addFields(
+                        {name: 'Referer', value: result[0].referer || 'Unknown (returned empty!)'},
+                        {name: 'Visitor IP Address', value: result[0].remote_addr || 'Unknown (returned empty!)'},
+                        {name: 'User Agent', value: result[0].user_agent || 'Unknown (returned empty!)'},
+                        {name: 'Target URL', value: result[0].visited_url || 'Unknown (returned empty!)'},
+                        {name: 'Result', value: result[0].type || 'Unknown (returned empty!)'},
+                        {name: 'Possible bot?', value: possibleBot},
+                    )
+                    .setTimestamp()
+                const alarmChannel = await client.channels.fetch(configurator.admin_channel)
+                alarmChannel.send({embeds: [shlinkVisitNotification]})
+            } else {
+                //No more clicks :(
+                console.log('[INFO] No new Shlink shortlink visits on check. Current: ' + configurator.shlink_lastVisitID + ' Found:' + result[0].id)
+            }
+            conn.close()
+        }).catch(err => {
+            console.error("[INFO] Unable to retrieve new results. Assuming that we have up to date information")
+            //TODO: Null is treated as an error when it should be a sign that we are up to date.
+        });
+    }
+
+    //Token to sign into the Discord API.
     client.login(process.env.token);
 
 }).catch(err => {

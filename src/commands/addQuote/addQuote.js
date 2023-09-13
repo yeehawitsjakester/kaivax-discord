@@ -9,7 +9,9 @@ module.exports = {
                 .setDescription('Message to add')),
 
     async execute(interaction) {
-
+        if (member.roles.cache.some(role => role.name === 'role name')) {
+            //TODO: Role requirement to use addQuote command.
+        }
         const mariadb = require('mariadb');
         const pool = mariadb.createPool({
             host: process.env.maria_host,

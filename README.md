@@ -25,3 +25,14 @@ To finish setup, make sure you also have the following VARs set:
 
 Should be as easy as that. Git clone, set VARs, spin it up in Docker, and make sure to set your roles and such in your server.
 More features and details coming soon...
+
+### Jake's TODO list...
+theres a good chance i'll forget some dumb feature or something that seemed really good at the time, im sleep deprived at 3 in the morning writing this, be patient with me here...
++ Move some configs to MariaDB. Better scaling, add/remove setting options as needed, less bs all around. Leave ENV to define Dev/Prod?
++ Database events. Hold last ID read off from shlink visits to keep track and run a scan every interval on the db. If shlink_visit_id = 10 AND database table says theres now 11, annouce data from 11th result, then save last id as 11. Repeat as results come in.
++ Discord events. Need to annouce and run some fancy schmancy stuff for server management like account joins.
++ Blacklisting. Pertains more to each owner (and our own server...), basically to each their own, but i dont doubt we will have some retard trying to break the bot or attempt unwanted actions. do fix said problems but also dont be an asshat.
++ Minecraft RCON to NodeJS module. Be able to sync chat as well as allow some members to send commands. Maybe even a payment GW/shop to allow people to pay 5$ to fuck with others on the server.
++ RSS feeds. This is a much needed thing given appaRENTLY WE'RE NOW SELLING THE MOST BASIC OF BOTS? idk, maybe its harder then it looks, but I shall have RSS damnit!
++ annoucements to new members of the server. small feature but would like to have a customized message, perhaps based on the invite.
++ tik tik tik...some other features later...
