@@ -236,7 +236,7 @@ module.exports = {
             try {
                 var response = request('GET', url, {
                     headers: {
-                        'user-agent': configurator.public_identifier,
+                        'user-agent': global.configurator.public_identifier,
                     },});
                 return JSON.parse(response.getBody());
             }
@@ -251,7 +251,7 @@ module.exports = {
             try {
                 var response = request('GET', url, {
                     headers: {
-                        'user-agent': configurator.public_identifier,
+                        'user-agent': global.configurator.public_identifier,
                     },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());
@@ -267,7 +267,7 @@ module.exports = {
             try {
                 var response = request('GET', url, {
                     headers: {
-                        'user-agent': configurator.public_identifier,
+                        'user-agent': global.configurator.public_identifier,
                     },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());
@@ -283,7 +283,7 @@ module.exports = {
             try {
                 var response = request('GET', url, {
                     headers: {
-                        'user-agent': configurator.public_identifier,
+                        'user-agent': global.configurator.public_identifier,
                     },});
                 console.log(response.getBody());
                 return JSON.parse(response.getBody());

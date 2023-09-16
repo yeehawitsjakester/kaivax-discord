@@ -56,7 +56,7 @@ module.exports = {
                         )
                         .setTimestamp()
 
-                    const alarmChannel = await client.channels.fetch(process.env.admin_channel)
+                    const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
                     alarmChannel.send({embeds: [adminURLError]})
 
                     interaction.reply("There was an error upon creation of the shortlink...please contact an administrator.")
@@ -73,7 +73,7 @@ module.exports = {
                     )
                     .setTimestamp()
 
-                const alarmChannel = await client.channels.fetch(process.env.admin_channel)
+                const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
                 alarmChannel.send({embeds: [adminDBError]})
             });
         } else {

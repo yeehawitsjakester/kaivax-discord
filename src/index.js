@@ -2,7 +2,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {Client, Collection, Events, GatewayIntentBits, EmbedBuilder} = require('discord.js');
 const cmds = require('./registerCMD');
-const client = new Client({intents: [GatewayIntentBits.Guilds]});
+
+const client = new Client({intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers
+    ]});
+
 exports.client = client
 let configurator;
 exports.configurator = configurator;
@@ -23,7 +31,7 @@ pool.getConnection().then(async conn => {
     await configuratorReload()
     //and set an interval to check in on shlink visits. 300000ms = 5min
     //TODO: Dont know if good idea, but want lots of customization. Either resolve "TypeError: Cannot read properties of undefined (reading 'shlink_checkRate')" or discard of grabbing from database for refresh rate.
-    setInterval(retrieveShlinkVisits, '15000');
+    //setInterval(retrieveShlinkVisits, '15000');
     //Read command files
     client.commands = new Collection();
     const foldersPath = path.join(__dirname, 'commands');
@@ -61,14 +69,42 @@ pool.getConnection().then(async conn => {
     function configuratorReload() {
         let getShlinkVisitsQuery = conn.query('SELECT * FROM kaivax.discord_settings').then(result => {
             console.log('CONF: Reloading configuration...');
+            //We can't seem to reload vars from exports. Attempting global vars, depricating this *for now*
+            /*
             configurator = {
                 admin_channel: result[0].settingValue,
                 guildID: result[1].settingValue,
                 bot_username: result[2].settingValue,
                 shlink_lastVisitID: result[3].settingValue,
                 shlink_checkRate: result[4].settingValue,
-                public_identifier: result[5].settingValue
+                cacheIPQS: result[5].settingValue,
+                ipqsCacheTime: result[6].settingValue,
+                public_identifier: result[7].settingValue,
+                enableGreeting: result[8].settingValue,
+                greetingString: result[9].settingValue,
+                greetingChannel: result[10].settingValue,
+                enableConfessions: result[11].settingValue,
+                confessionsChannel: result[12].settingValue
             }
+            */
+
+            //Call vars
+            global.configurator = {
+                admin_channel: result[0].settingValue,
+                guildID: result[1].settingValue,
+                bot_username: result[2].settingValue,
+                shlink_lastVisitID: result[3].settingValue,
+                shlink_checkRate: result[4].settingValue,
+                cacheIPQS: result[5].settingValue,
+                ipqsCacheTime: result[6].settingValue,
+                public_identifier: result[7].settingValue,
+                enableGreeting: result[8].settingValue,
+                greetingString: result[9].settingValue,
+                greetingChannel: result[10].settingValue,
+                enableConfessions: result[11].settingValue,
+                confessionsChannel: result[12].settingValue
+            }
+
             console.log('CONF: Configuration reloaded and up to date.');
             conn.close();
         }).catch(err => {
@@ -79,10 +115,10 @@ pool.getConnection().then(async conn => {
 
     function retrieveShlinkVisits() {
         console.log('Retrieving new Shlink visits, one moment...')
-        let getShlinkVisitsReq = conn.query('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + configurator.shlink_lastVisitID + ';').then(async result => {
-            console.log('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + configurator.shlink_lastVisitID + ';')
+        let getShlinkVisitsReq = conn.query('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + global.configurator.shlink_lastVisitID + ';').then(async result => {
+            console.log('SELECT * FROM shlink.visits LIMIT 1 OFFSET ' + global.configurator.shlink_lastVisitID + ';')
             let newVisitID = result[0].id;
-            let previousVisitID = configurator.shlink_lastVisitID;
+            let previousVisitID = global.configurator.shlink_lastVisitID;
 
             if (newVisitID != null && newVisitID != previousVisitID) {
                 //There is a valid click ahead of this one.
@@ -110,11 +146,11 @@ pool.getConnection().then(async conn => {
                         {name: 'Possible bot?', value: possibleBot},
                     )
                     .setTimestamp()
-                const alarmChannel = await client.channels.fetch(configurator.admin_channel)
+                const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
                 alarmChannel.send({embeds: [shlinkVisitNotification]})
             } else {
                 //No more clicks :(
-                console.log('[INFO] No new Shlink shortlink visits on check. Current: ' + configurator.shlink_lastVisitID + ' Found:' + result[0].id)
+                console.log('[INFO] No new Shlink shortlink visits on check. Current: ' + global.configurator.shlink_lastVisitID + ' Found:' + result[0].id)
             }
             conn.close()
         }).catch(err => {

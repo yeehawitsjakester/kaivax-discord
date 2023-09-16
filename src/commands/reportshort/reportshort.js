@@ -47,7 +47,7 @@ module.exports = {
                     )
                     .setTimestamp()
 
-                const alarmChannel = await client.channels.fetch(process.env.admin_channel)
+                const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
                 alarmChannel.send({embeds: [adminShortlinkAlert]})
             }).catch(async err => {
                 //Does not exist
@@ -76,7 +76,7 @@ module.exports = {
                 .setDescription("An attempted shortlink report has failed due to database errors. Please check the database connection and ensure all is well. Result:"+err)
                 .setTimestamp()
 
-            const alarmChannel = await client.channels.fetch(process.env.admin_channel)
+            const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
             alarmChannel.send({embeds: [adminShortlinkAlert]})
         })
     },
