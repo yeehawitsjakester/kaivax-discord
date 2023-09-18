@@ -1,6 +1,5 @@
 const { Events, Routes, EmbedBuilder, Client} = require('discord.js');
 const { client } = require("/usr/src/app/index.js");
-const mariadb = require("mariadb");
 //TODO: Add regex blacklist and check for certain characteristics in the profile
 module.exports = {
     name: Events.GuildMemberAdd,
