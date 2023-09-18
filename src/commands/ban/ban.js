@@ -27,7 +27,9 @@ module.exports = {
         pool.getConnection().then(conn => {
             let sqlRequest = `SELECT * FROM kaivax.discord_administrators WHERE snowflake = '${interaction.user.id}';`;
             let findAdminReq = conn.query(sqlRequest).then(async result => {
-                let banUserDBQuery = `INSERT INTO kaivax.discord_blacklistedUsers (snowflake, blacklistedByID, blacklistReason, blacklistedByUsername) VALUES (`+interaction.options.getString('snowflake_id')+`, `+interaction.user.id+`, '`+interaction.options.getString('reason')+`', '`+interaction.user.username+`');`;
+                let blacklistReasonClean = conn.escape(interaction.options.getString('reason'))
+                let blacklistedByUsernameClean = conn.escape(interaction.user.username)
+                let banUserDBQuery = `INSERT INTO kaivax.discord_blacklistedUsers (snowflake, blacklistedByID, blacklistReason, blacklistedByUsername) VALUES (`+interaction.options.getString('snowflake_id')+`, `+interaction.user.id+`, '`+blacklistReasonClean+`', '`+blacklistedByUsernameClean+`');`;
                 await conn.query(banUserDBQuery);
 
                 let banishedMember = client.members.cache.get(interaction.options.getString('snowflake_id'));

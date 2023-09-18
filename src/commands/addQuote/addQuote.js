@@ -21,7 +21,8 @@ module.exports = {
         });
 
         pool.getConnection().then(conn => {
-            let newQuoteTest = conn.query("INSERT INTO mainwebsite.quotes (quote) VALUES ('"+interaction.options.getString('msg')+"');").then(result =>{
+            let newQuoteString = conn.escape(interaction.options.getString('msg'))
+            let newQuoteTest = conn.query("INSERT INTO mainwebsite.quotes (quote) VALUES ('"+newQuoteString+"');").then(result =>{
                 interaction.reply("New quote successfully added to the archives.")
                 conn.close();
             }).catch(err => {

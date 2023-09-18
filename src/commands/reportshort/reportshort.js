@@ -20,7 +20,8 @@ module.exports = {
         });
 
         pool.getConnection().then(conn => {
-            let sqlRequest = `SELECT * FROM shlink.short_urls WHERE short_code = '${interaction.options.getString('shortcode')}';`;
+            let shortcodeRequestClean = conn.escape(interaction.options.getString('shortcode'))
+            let sqlRequest = `SELECT * FROM shlink.short_urls WHERE short_code = '${shortcodeRequestClean}';`;
             let sqlResult = conn.query(sqlRequest).then(async result => {
 
                 const shortReportSuccess = new EmbedBuilder()
