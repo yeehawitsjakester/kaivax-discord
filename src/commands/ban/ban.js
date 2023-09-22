@@ -15,13 +15,7 @@ module.exports = {
                 .setDescription('Reason why you wish to ban this user.')
                 .setRequired(true)),
     async execute(interaction) {
-        const mariadb = require('mariadb');
-        const pool = mariadb.createPool({
-            host: process.env.maria_host,
-            user: process.env.maria_user,
-            password: process.env.maria_pwd,
-            connectionLimit: 5
-        });
+        const { pool } = require("/usr/src/app/addons/mariadb/config.js");
 
         //To audit logs for user info.
         pool.getConnection().then(conn => {
@@ -29,7 +23,7 @@ module.exports = {
             let findAdminReq = conn.query(sqlRequest).then(async result => {
                 let blacklistReasonClean = conn.escape(interaction.options.getString('reason'))
                 let blacklistedByUsernameClean = conn.escape(interaction.user.username)
-                let banUserDBQuery = `INSERT INTO kaivax.discord_blacklistedUsers (snowflake, blacklistedByID, blacklistReason, blacklistedByUsername) VALUES (`+interaction.options.getString('snowflake_id')+`, `+interaction.user.id+`, '`+blacklistReasonClean+`', '`+blacklistedByUsernameClean+`');`;
+                let banUserDBQuery = `INSERT INTO kaivax.discord_blacklistedUsers (snowflake, blacklistedByID, blacklistReason, blacklistedByUsername) VALUES (`+interaction.options.getString('snowflake_id')+`, `+interaction.user.id+`, `+blacklistReasonClean+`, `+blacklistedByUsernameClean+`);`;
                 await conn.query(banUserDBQuery);
 
                 let banishedMember = client.members.cache.get(interaction.options.getString('snowflake_id'));

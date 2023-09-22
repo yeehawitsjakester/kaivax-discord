@@ -12,13 +12,7 @@ module.exports = {
 
     async execute(interaction) {
         var crypto = require("crypto");
-        const mariadb = require('mariadb');
-        const pool = mariadb.createPool({
-            host: process.env.maria_host,
-            user: process.env.maria_user,
-            password: process.env.maria_pwd,
-            connectionLimit: 5
-        });
+        const { pool } = require("/usr/src/app/addons/mariadb/config.js");
         let newURLCode = crypto.randomBytes(4).toString('hex');
 
         //Before we even connect to the database, let's validate that this is a valid URL otherwise Shlink will Shit the bed. *ba dum tiss*
@@ -35,7 +29,7 @@ module.exports = {
         if(isValidUrl(interaction.options.getString('url')) === true) {
             pool.getConnection().then(conn => {
                 let cleanURLtoShorten = conn.escape(interaction.options.getString('url'))
-                let sqlQuery = "INSERT INTO shlink.short_urls (domain_id, author_api_key_id, original_url, short_code, date_created, valid_since,valid_until, max_visits, import_source, import_original_short_code, title,title_was_auto_resolved, crawlable, forward_query) VALUES (null, null, '"+cleanURLtoShorten+"', '"+newURLCode+"', NOW(), null, null, null, null, null, null, DEFAULT,'0', '1');";
+                let sqlQuery = "INSERT INTO shlink.short_urls (domain_id, author_api_key_id, original_url, short_code, date_created, valid_since,valid_until, max_visits, import_source, import_original_short_code, title,title_was_auto_resolved, crawlable, forward_query) VALUES (null, null, "+cleanURLtoShorten+", '"+newURLCode+"', NOW(), null, null, null, null, null, null, DEFAULT,'0', '1');";
                 let newQuoteTest = conn.query(sqlQuery).then(result =>{
                     const newURLShort = new EmbedBuilder()
                         .setColor("#00FF00")

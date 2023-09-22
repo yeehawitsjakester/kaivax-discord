@@ -35,4 +35,5 @@ theres a good chance i'll forget some dumb feature or something that seemed real
 + Minecraft RCON to NodeJS module. Be able to sync chat as well as allow some members to send commands. Maybe even a payment GW/shop to allow people to pay 5$ to fuck with others on the server.
 + RSS feeds. This is a much needed thing given appaRENTLY WE'RE NOW SELLING THE MOST BASIC OF BOTS? idk, maybe its harder then it looks, but I shall have RSS damnit!
 + annoucements to new members of the server. small feature but would like to have a customized message, perhaps based on the invite.
-+ tik tik tik...some other features later...
++ add enable/disable certain commands and events
++ 

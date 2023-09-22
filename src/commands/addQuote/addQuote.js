@@ -12,17 +12,11 @@ module.exports = {
         if (member.roles.cache.some(role => role.name === 'role name')) {
             //TODO: Role requirement to use addQuote command.
         }
-        const mariadb = require('mariadb');
-        const pool = mariadb.createPool({
-            host: process.env.maria_host,
-            user: process.env.maria_user,
-            password: process.env.maria_pwd,
-            connectionLimit: 5
-        });
+        const { pool } = require("/usr/src/app/addons/mariadb/config.js");
 
         pool.getConnection().then(conn => {
             let newQuoteString = conn.escape(interaction.options.getString('msg'))
-            let newQuoteTest = conn.query("INSERT INTO mainwebsite.quotes (quote) VALUES ('"+newQuoteString+"');").then(result =>{
+            let newQuoteTest = conn.query("INSERT INTO mainwebsite.quotes (quote) VALUES ("+newQuoteString+");").then(result =>{
                 interaction.reply("New quote successfully added to the archives.")
                 conn.close();
             }).catch(err => {

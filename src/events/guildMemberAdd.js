@@ -5,13 +5,7 @@ module.exports = {
     name: Events.GuildMemberAdd,
     once: false,
     async execute(member) {
-        const mariadb = require('mariadb');
-        const pool = mariadb.createPool({
-            host: process.env.maria_host,
-            user: process.env.maria_user,
-            password: process.env.maria_pwd,
-            connectionLimit: 5
-        });
+        const { pool } = require("/usr/src/app/addons/mariadb/config.js");
         //To audit logs for user info.
         pool.getConnection().then(conn => {
             let sqlRequest = `SELECT * FROM kaivax.discord_blacklistedUsers WHERE snowflake = '${member.user.id}';`;

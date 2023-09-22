@@ -11,17 +11,11 @@ module.exports = {
                 .setRequired(true)),
 
     async execute(interaction) {
-        const mariadb = require('mariadb');
-        const pool = mariadb.createPool({
-            host: process.env.maria_host,
-            user: process.env.maria_user,
-            password: process.env.maria_pwd,
-            connectionLimit: 5
-        });
+        const { pool } = require("/usr/src/app/addons/mariadb/config.js");
 
         pool.getConnection().then(conn => {
             let shortcodeRequestClean = conn.escape(interaction.options.getString('shortcode'))
-            let sqlRequest = `SELECT * FROM shlink.short_urls WHERE short_code = '${shortcodeRequestClean}';`;
+            let sqlRequest = `SELECT * FROM shlink.short_urls WHERE short_code = ${shortcodeRequestClean};`;
             let sqlResult = conn.query(sqlRequest).then(async result => {
 
                 const shortReportSuccess = new EmbedBuilder()
