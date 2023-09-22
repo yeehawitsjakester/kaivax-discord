@@ -15,16 +15,14 @@
 */
 
 const {EmbedBuilder} = require("discord.js");
-const mariadb = require("mariadb");
 var request = require('sync-request');
 const { channelId } = require('@yeehawitsjakester/node-get-youtube-id-by-url')
-const configuratorReload = require('/usr/src/app/addons/configurator/configurator.js')
 const { pool } = require("/usr/src/app/addons/mariadb/config.js");
 const { client } = require("/usr/src/app/index.js");
 let Parser = require('rss-parser');
 let parser = new Parser();
 
-module.exports = function addYouTubeRSS(youtubeChannelURL) {
+    function addYouTubeRSS(youtubeChannelURL) {
     let addYTRSSstatus = false;
     var res = request('GET',youtubeChannelURL);
     if(res.statusCode === 200) {
@@ -74,12 +72,11 @@ module.exports = function addYouTubeRSS(youtubeChannelURL) {
         addYTRSSstatus = true;
         return addYTRSSstatus;
     } else {
-        console.log('rss-yt.js>> Status did NOT return 200!')
+        console.log('rss.js>> Status did NOT return 200!')
         return addYTRSSstatus;
     }
 }
-
-module.exports = function checkYoutubeRSS() {
+    function checkYoutubeRSS() {
     pool.getConnection().then(async conn => {
         let getRSSFeedsYoutubeOnly = 'SELECT * FROM kaivax.discord_rss WHERE lastID LIKE "yt:video%";';
         let addNewYTRSSFeedReq = conn.query(getRSSFeedsYoutubeOnly).then(async result => {
@@ -104,5 +101,74 @@ module.exports = function checkYoutubeRSS() {
         });
     });
 }
+    function addStandardRSS(RSSfeedURL) {
 
-//addYouTubeRSS('https://www.youtube.com/channel/UCXJ-QkzV601_lrpQtx5SZBA')
+    let addRSSstatus = false;
+    var res = request('GET',RSSfeedURL);
+
+    (async () => {
+        let feed = await parser.parseURL(RSSfeedURL);
+
+        pool.getConnection().then(async conn => {
+            let cleanRssID = conn.escape(RSSfeedURL)
+            let cleanLastID = conn.escape(feed.items[0].id)
+            //console.log(feed)
+            let addNewRSSFeedQuery = 'INSERT INTO kaivax.discord_rss (rssIdentifier, lastID) VALUES ('+cleanRssID+','+cleanLastID+');'
+            let addNewYTRSSFeedReq = conn.query(addNewRSSFeedQuery).then(async result => {
+                addRSSstatus = true;
+            }).catch(async err => {
+                addRSSstatus = false;
+            });
+        }).catch(async err => {
+            addRSSstatus = false;
+            const failedRSSmariaCONN = new EmbedBuilder()
+                .setColor('#ff0000')
+                .setTitle('Error detected on adding Standard RSS!')
+                .setDescription('A command was ran to add a new feed at '+RSSfeedURL+' but failed. It looks like this is due to a connection issue on the database. Please ensure that your database node is online and accepting connections.')
+                .setTimestamp()
+                .setFooter({ text: 'Built by YeehawItsJake', iconURL: 'https://cdn.dwxenterprises.net/images/main/dwxeicon.jpg' });
+            const alarmChannel = await client.channels.fetch(global.configurator.admin_channel)
+            alarmChannel.send({embeds: [failedRSSmariaCONN]})
+        });
+        return addRSSstatus;
+    })();
+    addRSSstatus = true;
+    return addRSSstatus;
+
+    console.log("RAHHHH FUCJKING RING THUNS FUNCUTOIN FOR DFUCKS SAKEc")
+
+}
+    function checkStandardRSS() {
+    pool.getConnection().then(async conn => {
+        let getRSSFeedsYoutubeOnly = 'SELECT * FROM kaivax.discord_rss WHERE lastID NOT LIKE "yt:video%";';
+        let addNewYTRSSFeedReq = conn.query(getRSSFeedsYoutubeOnly).then(async result => {
+            result.forEach(rssFeed => {
+                (async () => {
+
+                    let feed = await parser.parseURL(rssFeed);
+                    if(rssFeed.lastID !== feed.items[0].id) {
+                        const announceChannel = await client.channels.fetch(global.configurator.annoucementsChannel)
+                        announceChannel.send({content: "New video from "+feed.items[0].author+" located at "+feed.items[0].link })
+
+                        let updateYoutubeLastVideoID = 'UPDATE kaivax.discord_rss SET lastID = "'+feed.items[0].id+'" WHERE rssIdentifier = "'+youtubeChannel.rssIdentifier+'";';
+                        await conn.query(updateYoutubeLastVideoID)
+                    } else {
+                        //no new RSS updates
+                        console.log('No new feed updates for channel ID: '+youtubeChannel.rssIdentifier)
+                    }
+                })();
+            })
+        }).catch(async err => {
+            console.log("Hmm, we had an issue connecting to the database. Trying again later...")
+        });
+    });
+}
+
+module.exports = {
+    addYouTubeRSS: addYouTubeRSS,
+    addStandardRSS: addStandardRSS,
+    checkStandardRSS: checkStandardRSS,
+    checkYoutubeRSS: checkYoutubeRSS
+}
+
+//addStandardRSS('http://www.reddit.com/r/news/.rss')

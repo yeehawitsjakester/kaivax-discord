@@ -18,7 +18,7 @@ let configurator;
 exports.configurator = configurator;
 
 const { pool } = require("/usr/src/app/addons/mariadb/config.js");
-const checkYoutubeRSS = require("/usr/src/app/addons/youtubeFeed/rss-yt.js")
+const checkYoutubeRSS = require("/usr/src/app/addons/rss/rss.js")
 
 cmds.reloadSlashCommandz();
 
@@ -29,7 +29,7 @@ pool.getConnection().then(async conn => {
     //and set an interval to check in on shlink visits. 300000ms = 5min
     //TODO: Dont know if good idea, but want lots of customization. Either resolve "TypeError: Cannot read properties of undefined (reading 'shlink_checkRate')" or discard of grabbing from database for refresh rate.
     setInterval(retrieveShlinkVisits, '60000'); //1 min
-    setInterval(checkYoutubeRSS, '3600000'); //1 hour. This is because we're performing RSS queries. We don't want to get banned by Youtube (im not sure on their limits, but I think this *should* be fine?)
+    setInterval(() => checkYoutubeRSS(), '3600000'); //1 hour. This is because we're performing RSS queries. We don't want to get banned by Youtube (im not sure on their limits, but I think this *should* be fine?)
     //Read command files
     client.commands = new Collection();
     const foldersPath = path.join(__dirname, 'commands');

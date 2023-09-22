@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, GuildMember, EmbedBuilder} = require('discord.js');
-const mariadb = require("mariadb");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,7 +11,7 @@ module.exports = {
 
     async execute(interaction) {
         const { client } = require("/usr/src/app/index.js");
-        const addYouTubeRSS = require("/usr/src/app/addons/youtubeFeed/rss-yt.js")
+        const addYouTubeRSS = require("/usr/src/app/addons/rss/rss.js")
         let youtubeRSSaddStatus = addYouTubeRSS(interaction.options.getString('url'))
 
         console.log(youtubeRSSaddStatus)
